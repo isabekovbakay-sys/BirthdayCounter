@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Birthday Tracker</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    color:white;
+    background:
+    linear-gradient(
+    135deg,
+    #0f172a,
+    #111827,
+    #1e1b4b,
+    #312e81
+    );
+}
+
+/* Фон */
+
+.bg{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:-1;
+}
+
+.blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(90px);
+    opacity:.35;
+    animation:float 18s infinite linear;
+}
+
+.blob:nth-child(1){
+    width:350px;
+    height:350px;
+    background:#00d4ff;
+    top:-100px;
+    left:-100px;
+}
+
+.blob:nth-child(2){
+    width:400px;
+    height:400px;
+    background:#8b5cf6;
+    right:-100px;
+    top:20%;
+}
+
+.blob:nth-child(3){
+    width:300px;
+    height:300px;
+    background:#06ffa5;
+    bottom:-100px;
+    left:40%;
+}
+
+@keyframes float{
+    50%{
+        transform:translateY(-50px) translateX(30px);
+    }
+}
+
+.container{
+    width:min(1200px,95%);
+    margin:auto;
+    padding:40px 0;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.header h1{
+    font-size:clamp(2rem,5vw,4rem);
+    font-weight:900;
+}
+
+.header p{
+    opacity:.7;
+    margin-top:10px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:rgba(255,255,255,.08);
+
+    backdrop-filter:blur(25px);
+    -webkit-backdrop-filter:blur(25px);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    border-radius:28px;
+    padding:28px;
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,.25);
+
+    transition:.35s;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+}
+
+.person-name{
+    font-size:1.7rem;
+    font-weight:800;
+    margin-bottom:20px;
+}
+
+.big-age{
+    font-size:4rem;
+    font-weight:900;
+
+    background:linear-gradient(
+        90deg,
+        #00d4ff,
+        #06ffa5
+    );
+
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.age-label{
+    opacity:.7;
+    margin-bottom:25px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:20px;
+}
+
+.stat{
+    background:rgba(255,255,255,.05);
+    padding:14px;
+    border-radius:16px;
+}
+
+.stat-value{
+    font-weight:800;
+    font-size:1.2rem;
+}
+
+.stat-label{
+    opacity:.6;
+    font-size:.85rem;
+}
+
+.progress-box{
+    margin-top:30px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.progress-text{
+    margin-top:12px;
+    font-weight:700;
+}
+
+.countdown{
+    margin-top:20px;
+    text-align:center;
+}
+
+.countdown-title{
+    opacity:.7;
+    margin-bottom:10px;
+}
+
+.countdown-value{
+    font-size:1.3rem;
+    font-weight:800;
+    color:#06ffa5;
+}
+
+svg{
+    overflow:visible;
+}
+
+circle{
+    fill:none;
+}
+
+.progress-bg{
+    stroke:rgba(255,255,255,.15);
+    stroke-width:12;
+}
+
+.progress{
+    stroke:url(#grad);
+    stroke-width:12;
+    stroke-linecap:round;
+    transform:rotate(-90deg);
+    transform-origin:center;
+}
+
+.footer{
+    text-align:center;
+    margin-top:40px;
+    opacity:.5;
+}
+
+@media(max-width:600px){
+
+    .big-age{
+        font-size:3rem;
+    }
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+<div class="container">
+
+    <div class="header">
+        <h1>🎂 Birthday Tracker</h1>
+        <p>Age and birthday countdown</p>
+    </div>
+
+    <div class="grid" id="cards"></div>
+
+    <div class="footer">
+        Updates every second
+    </div>
+
+</div>
+
+<script>
+
+const people = [
+{
+    name:"Keta",
+    birth:"2005-10-09"
+},
+{
+    name:"Bakai",
+    birth:"2006-07-05"
+}
+];
+
+const cards = document.getElementById("cards");
+
+people.forEach((p,i)=>{
+    cards.innerHTML += `
+    <div class="card">
+        <div class="person-name">${p.name}</div>
+
+        <div class="big-age" id="years-${i}">0</div>
+        <div class="age-label">Years</div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="days-${i}"></div>
+                <div class="stat-label">Days</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-value" id="hours-${i}"></div>
+                <div class="stat-label">Hours</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-value" id="minutes-${i}"></div>
+                <div class="stat-label">Minuts</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-value" id="seconds-${i}"></div>
+                <div class="stat-label">Seconds</div>
+            </div>
+        </div>
+
+        <div class="progress-box">
+
+            <svg width="200" height="200">
+
+                <defs>
+                    <linearGradient id="grad">
+                        <stop offset="0%" stop-color="#00d4ff"/>
+                        <stop offset="100%" stop-color="#06ffa5"/>
+                    </linearGradient>
+                </defs>
+
+                <circle
+                    class="progress-bg"
+                    cx="100"
+                    cy="100"
+                    r="75">
+                </circle>
+
+                <circle
+                    class="progress"
+                    id="circle-${i}"
+                    cx="100"
+                    cy="100"
+                    r="75">
+                </circle>
+
+                <text
+                    x="100"
+                    y="108"
+                    text-anchor="middle"
+                    fill="white"
+                    font-size="24"
+                    font-weight="800"
+                    id="percent-${i}">
+                </text>
+
+            </svg>
+
+            <div class="progress-text">
+                Until next birthday
+            </div>
+
+        </div>
+
+        <div class="countdown">
+            <div class="countdown-value" id="countdown-${i}">
+            </div>
+        </div>
+
+    </div>
+    `;
+});
+
+function update(){
+
+    const now = new Date();
+
+    people.forEach((person,index)=>{
+
+        const birth = new Date(person.birth);
+
+        const ageMs = now - birth;
+
+        const days = Math.floor(ageMs / 86400000);
+        const hours = Math.floor(ageMs / 3600000);
+        const minutes = Math.floor(ageMs / 60000);
+        const seconds = Math.floor(ageMs / 1000);
+
+        const years = Math.floor(
+            days / 365.2425
+        );
+
+        document.getElementById(`years-${index}`).textContent =
+            years;
+
+        document.getElementById(`days-${index}`).textContent =
+            days.toLocaleString();
+
+        document.getElementById(`hours-${index}`).textContent =
+            hours.toLocaleString();
+
+        document.getElementById(`minutes-${index}`).textContent =
+            minutes.toLocaleString();
+
+        document.getElementById(`seconds-${index}`).textContent =
+            seconds.toLocaleString();
+
+        let lastBirthday = new Date(
+            now.getFullYear(),
+            birth.getMonth(),
+            birth.getDate()
+        );
+
+        if(lastBirthday > now){
+            lastBirthday.setFullYear(
+                lastBirthday.getFullYear()-1
+            );
+        }
+
+        let nextBirthday = new Date(
+            lastBirthday
+        );
+
+        nextBirthday.setFullYear(
+            lastBirthday.getFullYear()+1
+        );
+
+        const total =
+            nextBirthday - lastBirthday;
+
+        const passed =
+            now - lastBirthday;
+
+        const percent =
+            (passed / total) * 100;
+
+        const radius = 75;
+        const circumference =
+            2 * Math.PI * radius;
+
+        const offset =
+            circumference -
+            (percent/100) * circumference;
+
+        const circle =
+            document.getElementById(`circle-${index}`);
+
+        circle.style.strokeDasharray =
+            circumference;
+
+        circle.style.strokeDashoffset =
+            offset;
+
+        document.getElementById(`percent-${index}`)
+        .textContent =
+        `${Math.floor(percent)}%`;
+
+        const remain =
+            nextBirthday - now;
+
+        const d =
+            Math.floor(remain/86400000);
+
+        const h =
+            Math.floor(remain/3600000)%24;
+
+        const m =
+            Math.floor(remain/60000)%60;
+
+        const s =
+            Math.floor(remain/1000)%60;
+
+        document.getElementById(
+            `countdown-${index}`
+        ).textContent =
+        `${d}d ${h}h ${m}м ${s}sec`;
+
+    });
+}
+
+update();
+setInterval(update,1000);
+
+</script>
+
+</body>
+</html>
