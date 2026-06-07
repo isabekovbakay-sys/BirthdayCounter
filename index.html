@@ -375,29 +375,48 @@ function update(){
 
         const ageMs = now - birth;
 
-        const days = Math.floor(ageMs / 86400000);
-        const hours = Math.floor(ageMs / 3600000);
-        const minutes = Math.floor(ageMs / 60000);
-        const seconds = Math.floor(ageMs / 1000);
-
         const years = Math.floor(
-            days / 365.2425
+            ageMs / (365.2425 * 24 * 60 * 60 * 1000)
+        );
+
+        const lastBirthdayAge = new Date(birth);
+
+        lastBirthdayAge.setFullYear(
+            birth.getFullYear() + years
+        );
+
+        const restMs = now - lastBirthdayAge;
+
+        const days = Math.floor(
+            restMs / (24 * 60 * 60 * 1000)
+        );
+
+        const hours = Math.floor(
+            (restMs / (60 * 60 * 1000)) % 24
+        );
+
+        const minutes = Math.floor(
+            (restMs / (60 * 1000)) % 60
+        );
+
+        const seconds = Math.floor(
+            (restMs / 1000) % 60
         );
 
         document.getElementById(`years-${index}`).textContent =
             years;
 
         document.getElementById(`days-${index}`).textContent =
-            days.toLocaleString();
+            days;
 
         document.getElementById(`hours-${index}`).textContent =
-            hours.toLocaleString();
+            hours;
 
         document.getElementById(`minutes-${index}`).textContent =
-            minutes.toLocaleString();
+            minutes;
 
         document.getElementById(`seconds-${index}`).textContent =
-            seconds.toLocaleString();
+            seconds;
 
         let lastBirthday = new Date(
             now.getFullYear(),
@@ -411,30 +430,23 @@ function update(){
             );
         }
 
-        let nextBirthday = new Date(
-            lastBirthday
-        );
+        let nextBirthday = new Date(lastBirthday);
 
         nextBirthday.setFullYear(
             lastBirthday.getFullYear()+1
         );
 
-        const total =
-            nextBirthday - lastBirthday;
+        const total = nextBirthday - lastBirthday;
+        const passed = now - lastBirthday;
 
-        const passed =
-            now - lastBirthday;
-
-        const percent =
-            (passed / total) * 100;
+        const percent = (passed / total) * 100;
 
         const radius = 75;
-        const circumference =
-            2 * Math.PI * radius;
+        const circumference = 2 * Math.PI * radius;
 
         const offset =
             circumference -
-            (percent/100) * circumference;
+            (percent / 100) * circumference;
 
         const circle =
             document.getElementById(`circle-${index}`);
@@ -453,21 +465,21 @@ function update(){
             nextBirthday - now;
 
         const d =
-            Math.floor(remain/86400000);
+            Math.floor(remain / 86400000);
 
         const h =
-            Math.floor(remain/3600000)%24;
+            Math.floor(remain / 3600000) % 24;
 
         const m =
-            Math.floor(remain/60000)%60;
+            Math.floor(remain / 60000) % 60;
 
         const s =
-            Math.floor(remain/1000)%60;
+            Math.floor(remain / 1000) % 60;
 
         document.getElementById(
             `countdown-${index}`
         ).textContent =
-        `${d}d ${h}h ${m}м ${s}sec`;
+        `${d}d ${h}h ${m}m ${s}s`;
 
     });
 }
